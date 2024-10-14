@@ -1,16 +1,32 @@
 import { Router } from "express";
-import { registerUser } from "../controllers/user.controller.js";
+import {
+  registerUser,
+  loginUser,
+  logoutUser,
+  refreshAccessToken,
+} from "../controllers/user.controller.js";
 import { upload } from "../middlewares/multer.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 const router = Router();
-router.route("/register").post(upload.fields([{
-    name:"avatar",
-    maxCount:1
+router.route("/register").post(
+  upload.fields([
+    {
+      name: "avatar",
+      maxCount: 1,
+    },
+    {
+      name: "coverImage",
+      maxCount: 1,
+    },
+  ]),
+  registerUser
+);
 
-}, 
-{
-    name:"coverImage",
-    maxCount:1
+router.route("/login").post(loginUser);
+router.route("/logout").post(verifyJWT, logoutUser); // before logging out must veify the user by providing the middleware//
 
-}]), registerUser);
+// next() in the middleware signfies that u have more function to be called after the current execution //
+
+router.route("/refresh-token").post(refreshAccessToken);
 
 export default router;
